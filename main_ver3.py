@@ -1,4 +1,4 @@
-name_row_file = 'ZF_1_dug_lic_part_3_t.nc' #Имя файла с nc кодом для переработки
+name_row_file = 'ZF-6_vog_part_1_M.nc' #Имя файла с nc кодом для переработки
 
 
 def check_merge_block(blocks:dict) -> dict:
@@ -14,6 +14,17 @@ def check_merge_block(blocks:dict) -> dict:
             diff = id_block_2 - id_block_1
             if 5 > diff > 0:
                 if blocks[key_1][len(blocks[key_1])-1] == blocks[key_2][0]:
+                    print(diff)
+                    print('--------------------------------------------------')
+                    print('KEY_1', key_1)
+                    print(blocks[key_1])
+                    print('--------------------------------------------------')
+                    print('KEY_2', key_2)
+                    print(blocks[key_2])
+                    print('--------------------------------------------------')
+
+
+
                     if key_1 == '108 G3: 1768 - 1768':
                         print('Блоки', blocks[key_1], 'объединены')
                     blocks[key_2].pop(0)
@@ -176,7 +187,7 @@ def merge_into_logical_blocks(blocks:dict, row_limit:int = 2000):
                     blocks_new[key2] = merge_block
     
     all_merge = check_merge_block(blocks_merge)
-    print(all_merge['114 G3: 1778 - 1779'])
+    #print(all_merge['114 G3: 1778 - 1779'])
     for key in all_merge.keys():
         blocks_new[key] = all_merge[key]
     return blocks_new
@@ -257,7 +268,7 @@ blocks_t = merge_into_logical_blocks(blocks)
 # for key in blocks_t.keys():
 #     print(key)
 #print(blocks_t['26 G3: 396 - 397'])
-file_output_name = 'test_out_5.nc'
+file_output_name = 'test_out_v_6.nc'
 #clear_blocks = clear_feed(blocks_t)
 writing_commands_to_file(blocks_t, file_output_name)
 #set_feed(blocks_t)
