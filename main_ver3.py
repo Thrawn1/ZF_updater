@@ -1,4 +1,4 @@
-name_row_file = 'ZF-6_vog_part_1_M.nc' #Имя файла с nc кодом для переработки
+name_row_file = 'ZF_1_dug_lic_part_3_t.nc' #Имя файла с nc кодом для переработки
 
 
 def check_merge_block(blocks:dict) -> dict:
@@ -154,42 +154,42 @@ def merge_into_logical_blocks(blocks:dict, row_limit:int = 2000):
     Если блок содержащий G1 меньше 4х строк, он объединяется с блоком G2 или G3 выше по строкам, 
     а следующий за ним G2 или G3 блок объединяется с ними"""
 
-    key_0 = '1 G1: 5 - 5'
-    del blocks[key_0]
+
     blocks_merge = {}
     blocks_new = blocks.copy()
-    for key in blocks.keys():
+    for i in range(len(blocks_new.keys())):
+        if i >= len(blocks_new.keys()):
+            break
+        keys_sorted = key_blocks_sort(list(blocks_new.keys()))
+        key = list(keys_sorted)[i]
+
         key_list = key.split()
         if  key_list[1][:-1] == 'G1' and  int(key_list[len(key_list)-1]) < row_limit: 
-            if len(blocks[key]) < 5:
+            if len(blocks_new[key]) < 5:
                 #print(key)
-                for key2 in blocks.keys():
-                    key2_list = key2.split()
-                    a = int(key2_list[0])
-                    b = int(key_list[0])-1
-                    c = int(key_list[0])+1
-                    #print(a,b)
-                    if a == b:
-                        merge_block = blocks[key2] + blocks[key]
-                        #print('Первый Мердж',merge_block)
-                        #print('Удаление первого ключа из словаря',key2)
-                        del blocks_new[key2]
-                    elif a == c:
-                        merge_block = merge_block + blocks[key2]
-                        #print('Второй Мердж',merge_block)
-                        #print('Удаление второго ключа из словаря',key2)
-                        del blocks_new[key2]
-                        break
-                if 'merge_block' in locals():
-                    #print(key,key2)
-                    del blocks_new[key]
-                    blocks_merge[key2] = merge_block
-                    blocks_new[key2] = merge_block
-    
-    all_merge = check_merge_block(blocks_merge)
-    #print(all_merge['114 G3: 1778 - 1779'])
-    for key in all_merge.keys():
-        blocks_new[key] = all_merge[key]
+                if i < len(blocks_new.keys()):
+                    next_key = keys_sorted[i+1]
+                else:
+                    next_key = key
+                prev_key = keys_sorted[i-1]
+                new_block = blocks_new[prev_key] + blocks_new[key] + blocks_new[next_key]
+                try:
+                    del blocks_new[prev_key]
+                    i-=1
+                except:
+                    print("Oops")
+                
+                del blocks_new[key]
+                i-=1
+
+                del blocks_new[next_key]
+                i-=1
+                
+                prev_key_list = prev_key.split()
+                next_key_list = next_key.split()
+                new_key = f"{prev_key_list[0]} {prev_key_list[1]} {prev_key_list[2]} - {next_key_list[4]}"
+                blocks_new[new_key] = new_block
+                i+=1
     return blocks_new
 
 
@@ -247,7 +247,10 @@ for row_line in file:
 # for key in blocks.keys():
 #         print(key,':', len(blocks[key]))
 # test_out_file_name = 'test_out.nc'
-blocks_t = merge_into_logical_blocks(blocks)
+key_0 = '1 G1: 5 - 5'
+del blocks[key_0]
+blocks_temp = merge_into_logical_blocks(blocks)
+blocks_t = merge_into_logical_blocks(blocks_temp)
 # for key_m in blocks_m.keys():
 #     print('------------------')
 #     print('Ключ: ',key_m)
