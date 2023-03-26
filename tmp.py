@@ -1,4 +1,4 @@
-name_file_1 = 'test_out_5.nc'
+name_file_1 = 'test_out_v_7.nc'
 name_file_2 = 'ZF_1_dug_lic_part_3_t.nc'
 
 file_1 = open(name_file_1, 'r')
