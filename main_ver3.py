@@ -3,6 +3,7 @@ name_row_file = 'ZF_1_dug_lic_part_3_t.nc' #Имя файла с nc кодом �
 
 def check_merge_block(blocks:dict) -> dict:
     """Функция проверяет блоки кода на возможность объединения"""
+    blocks_result = blocks.copy()
     blocks_merge = {}
     for key_1 in blocks.keys():
         key_list_1 = key_1.split()
@@ -13,10 +14,13 @@ def check_merge_block(blocks:dict) -> dict:
             diff = id_block_2 - id_block_1
             if 5 > diff > 0:
                 if blocks[key_1][len(blocks[key_1])-1] == blocks[key_2][0]:
+                    if key_1 == '108 G3: 1768 - 1768':
+                        print('Блоки', blocks[key_1], 'объединены')
                     blocks[key_2].pop(0)
-                    blocks[key_1] = blocks[key_1] + blocks[key_2]
+                    blocks_result[key_2] = blocks[key_1] + blocks[key_2]
+                    del blocks_result[key_1]
                     blocks_merge[key_1] = blocks[key_1]
-    return blocks
+    return blocks_result
 
 
 def writing_keys(blocks:dict, name_file:str):
@@ -36,7 +40,7 @@ def key_blocks_sort(key_block:list) -> list:
         temp_dict[id_block] = key
     list_key = list(temp_dict.keys())
     list_key.sort()
-    print(list_key)
+    #print(list_key)
     new_key_block = []
     for key in list_key:
         new_key_block.append(temp_dict[key])
@@ -156,29 +160,26 @@ def merge_into_logical_blocks(blocks:dict, row_limit:int = 2000):
                     #print(a,b)
                     if a == b:
                         merge_block = blocks[key2] + blocks[key]
-                        print('Первый Мердж',merge_block)
-                        print('Удаление первого ключа из словаря',key2)
+                        #print('Первый Мердж',merge_block)
+                        #print('Удаление первого ключа из словаря',key2)
                         del blocks_new[key2]
                     elif a == c:
                         merge_block = merge_block + blocks[key2]
-                        print('Второй Мердж',merge_block)
-                        print('Удаление второго ключа из словаря',key2)
+                        #print('Второй Мердж',merge_block)
+                        #print('Удаление второго ключа из словаря',key2)
                         del blocks_new[key2]
                         break
                 if 'merge_block' in locals():
-                    print(key,key2)
+                    #print(key,key2)
                     del blocks_new[key]
-                    blocks_merge[key] = merge_block
+                    blocks_merge[key2] = merge_block
                     blocks_new[key2] = merge_block
-                    if key2 in blocks_new.keys():
-                        print('------------------')
-                        print('Ключ ecть',key2)
-                        print('Для проверки',blocks_new[key2])
-                        print('------------------')
-    key_valid = '28 G3: 399 - 399'
-    if key_valid in blocks_new.keys():
-        print('YES!')
-    return blocks_new, blocks_merge
+    
+    all_merge = check_merge_block(blocks_merge)
+    print(all_merge['114 G3: 1778 - 1779'])
+    for key in all_merge.keys():
+        blocks_new[key] = all_merge[key]
+    return blocks_new
 
 
 
@@ -235,28 +236,28 @@ for row_line in file:
 # for key in blocks.keys():
 #         print(key,':', len(blocks[key]))
 # test_out_file_name = 'test_out.nc'
-blocks_t,blocks_m = merge_into_logical_blocks(blocks)
-for key_m in blocks_m.keys():
-    print('------------------')
-    print('Ключ: ',key_m)
-    print('Результат слияния: \n',blocks_m[key_m])
-    print('------------------')
-print('------------------')
-print(len(blocks_m.keys()))
-print('------------------')
-print('------------------')
-print('------------------')
-a = check_merge_block(blocks_m)
-for key_am in a.keys():
-    print('------------------')
-    print('Ключ: ',key_am)
-    print('Результат слияния: \n',a[key_am])
-    print('------------------')
-print(len(a.keys()))
+blocks_t = merge_into_logical_blocks(blocks)
+# for key_m in blocks_m.keys():
+#     print('------------------')
+#     print('Ключ: ',key_m)
+#     print('Результат слияния: \n',blocks_m[key_m])
+#     print('------------------')
+# print('------------------')
+# print(len(blocks_m.keys()))
+# print('------------------')
+# print('------------------')
+# print('------------------')
+# a = check_merge_block(blocks_m)
+# for key_am in a.keys():
+#     print('------------------')
+#     print('Ключ: ',key_am)
+#     print('Результат слияния: \n',a[key_am])
+#     print('------------------')
+# print(len(a.keys()))
 # for key in blocks_t.keys():
 #     print(key)
 #print(blocks_t['26 G3: 396 - 397'])
-#file_output_name = 'test_out_3.nc'
+file_output_name = 'test_out_5.nc'
 #clear_blocks = clear_feed(blocks_t)
-#writing_commands_to_file(blocks_t, file_output_name)
+writing_commands_to_file(blocks_t, file_output_name)
 #set_feed(blocks_t)
