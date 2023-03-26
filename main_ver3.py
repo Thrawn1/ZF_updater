@@ -13,20 +13,6 @@ def check_merge_block(blocks:dict) -> dict:
             id_block_2 = int(key_2_list[0])
             diff = id_block_2 - id_block_1
             if 5 > diff > 0:
-                if blocks[key_1][len(blocks[key_1])-1] == blocks[key_2][0]:
-                    print(diff)
-                    print('--------------------------------------------------')
-                    print('KEY_1', key_1)
-                    print(blocks[key_1])
-                    print('--------------------------------------------------')
-                    print('KEY_2', key_2)
-                    print(blocks[key_2])
-                    print('--------------------------------------------------')
-
-
-
-                    if key_1 == '108 G3: 1768 - 1768':
-                        print('Блоки', blocks[key_1], 'объединены')
                     blocks[key_2].pop(0)
                     blocks_result[key_2] = blocks[key_1] + blocks[key_2]
                     del blocks_result[key_1]
@@ -42,7 +28,6 @@ def writing_keys(blocks:dict, name_file:str):
     file.close()
 
 
-
 def key_blocks_sort(key_block:list) -> list:
     temp_dict = {}
     for key in key_block:
@@ -56,11 +41,6 @@ def key_blocks_sort(key_block:list) -> list:
     for key in list_key:
         new_key_block.append(temp_dict[key])
     return new_key_block
-
-
-
-
-
 
 
 def writing_commands_to_file(blocks:dict, name_file:str):
@@ -84,20 +64,23 @@ def clear_feed_in_row(row_line:str,id_row:int,row_limit:int = 2000) -> str:
                 feed = int(command[1:])
                 if feed == 1000:
                     if id_row > row_limit:
-                        return line_row
+                        return row_line
                     else:
                         line_list.remove(command)
                         line_row = ' '.join(line_list)
                         line_row = line_row + '\n'
                         return line_row
                 elif feed == 90:
-                    print('ПРЕДУПРЕЖДЕНИЕ!')
-                    print('В строке', id_row, 'подача равна 90')
-                    #Заменить подачу с 90 на 10 
-                    line_list.remove(command)
-                    line_row = ' '.join(line_list)
-                    line_row = line_row + '\n'
-                    return line_row
+                    if id_row > row_limit:
+                        return row_line
+                    else:
+                        print('ПРЕДУПРЕЖДЕНИЕ!')
+                        print('В строке', id_row, 'подача равна 90')
+                        #Заменить подачу с 90 на 10 
+                        line_list.remove(command)
+                        line_row = ' '.join(line_list)
+                        line_row = line_row + '\n'
+                        return line_row
                 else:
                     line_list.remove(command)
                     line_row = ' '.join(line_list)
@@ -105,7 +88,6 @@ def clear_feed_in_row(row_line:str,id_row:int,row_limit:int = 2000) -> str:
                     return line_row
     else:
         return row_line
-
 
 
 
@@ -130,12 +112,32 @@ def clear_feed(blocks:dict, row_limit:int = 2000) -> dict:
             
 def set_feed(blocks:dict, row_limit:int = 2000) -> dict:
     step = len(blocks.keys())
+    feed_z = 10
+    feed_g1 = 30
+    feed_step_0 = 10
+    feed_step_1 = 50
+    feed_step_2 = 100
+    feed_step_3 = 200
+    count_block = 0
     print(step)
     key_list_raw = list(blocks.keys())
     key_list = key_blocks_sort(key_list_raw)
     for key_block in key_list:
-        print(key_block)
-
+        key_block_list = key_block.split()
+        command = key_block_list[1][:2]
+        if command != 'G1' or command != 'G0':
+            line = blocks[key_block][0]
+            line_w = line[:-1]
+            new_line = line_w + ' F' + str(feed_z) + '\n'
+            blocks[key_block][0] = new_line
+        elif command == 'G1':
+            line = blocks[key_block][0]
+            line_w = line[:-1]
+            new_line = line_w + ' F' + str(feed_g1) + '\n'
+            blocks[key_block][0] = new_line
+        if 12>count_block>5:
+            pass
+        count_block += 1
 
 
 def write_block_to_blocks(block:list, blocks:dict, count:int, flag:str):
@@ -147,26 +149,20 @@ def write_block_to_blocks(block:list, blocks:dict, count:int, flag:str):
     block = []
     return blocks, block
 
-
-
 def merge_into_logical_blocks(blocks:dict, row_limit:int = 2000):
     """Функция анализирует блоки кода, до ограничивающей строки - по умолчанию 2000 строк.
     Если блок содержащий G1 меньше 4х строк, он объединяется с блоком G2 или G3 выше по строкам, 
     а следующий за ним G2 или G3 блок объединяется с ними"""
 
-
-    blocks_merge = {}
     blocks_new = blocks.copy()
     for i in range(len(blocks_new.keys())):
         if i >= len(blocks_new.keys()):
             break
         keys_sorted = key_blocks_sort(list(blocks_new.keys()))
         key = list(keys_sorted)[i]
-
         key_list = key.split()
         if  key_list[1][:-1] == 'G1' and  int(key_list[len(key_list)-1]) < row_limit: 
             if len(blocks_new[key]) < 5:
-                #print(key)
                 if i < len(blocks_new.keys()):
                     next_key = keys_sorted[i+1]
                 else:
@@ -178,13 +174,10 @@ def merge_into_logical_blocks(blocks:dict, row_limit:int = 2000):
                     i-=1
                 except:
                     print("Oops")
-                
                 del blocks_new[key]
                 i-=1
-
                 del blocks_new[next_key]
                 i-=1
-                
                 prev_key_list = prev_key.split()
                 next_key_list = next_key.split()
                 new_key = f"{prev_key_list[0]} {prev_key_list[1]} {prev_key_list[2]} - {next_key_list[4]}"
@@ -271,7 +264,7 @@ blocks_t = merge_into_logical_blocks(blocks_temp)
 # for key in blocks_t.keys():
 #     print(key)
 #print(blocks_t['26 G3: 396 - 397'])
-file_output_name = 'test_out_v_6.nc'
-#clear_blocks = clear_feed(blocks_t)
-writing_commands_to_file(blocks_t, file_output_name)
-#set_feed(blocks_t)
+file_output_name = 'test_out_2.nc'
+clear_blocks = clear_feed(blocks_t)
+writing_commands_to_file(clear_blocks, file_output_name)
+set_feed(clear_blocks)
