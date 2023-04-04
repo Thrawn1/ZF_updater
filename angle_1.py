@@ -39,17 +39,31 @@ for line in text:
                 k = float(i[1:])
                 vc.append(k)
     else:
-        if line.startswith('X'):
-            x = float(line[1:])
-            data_dict['X1_end'] = x
-        elif line.startswith('Z'):
-            z = float(line[1:])
-            data_dict['Z1_end'] = z
+        line_list = line.split()
+        for i in line_list:
+            print(line_list)
+            if i.startswith('X'):
+                x = float(i[1:])
+                data_dict['X1_end'] = x
+            elif i.startswith('Z'):
+                z = float(i[1:])
+                data_dict['Z1_end'] = z
 
 X_start = data_dict['X1_end'] + vc[0]
 Z_start = data_dict['Z1_end'] + vc[1]
-data_dict['X1_start'] = X_start
-data_dict['Z1_start'] = Z_start
+print(X_start, Z_start)
+data_dict['X_start'] = X_start
+data_dict['Z_start'] = Z_start
+print(data_dict)
+aa = (data_dict['X_start'], data_dict['Z_start'], data_dict['X1_end'], data_dict['Z1_end'])
+bb = (data_dict['X_start'], data_dict['Z_start'], data_dict['X2_end'], data_dict['Z2_end'])
 
-print(angle(a, b))
 
+
+angl = angle(aa, bb)
+R = 718.2885
+
+l_dug = 2 * 3.141592653589793 * R / 360 * angl
+l_dug_secured = 12
+new_angl = l_dug_secured*360/(2 * 3.141592653589793 * R)
+print(new_angl)
