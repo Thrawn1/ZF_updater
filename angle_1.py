@@ -1,4 +1,4 @@
-from math import sqrt, acos
+from math import sqrt, acos, cos, sin
 # есть координаты отрезков в виде котртежей, координаты начала отрезка и конца отрезка
 #Нужно найти угол между отрезками
 
@@ -64,6 +64,20 @@ angl = angle(aa, bb)
 R = 718.2885
 
 l_dug = 2 * 3.141592653589793 * R / 360 * angl
+
 l_dug_secured = 12
+
 new_angl = l_dug_secured*360/(2 * 3.141592653589793 * R)
-print(new_angl)
+
+#print('dfds',new_angl)
+
+new_angl_rad = new_angl * 3.141592653589793 / 180
+print('rad',new_angl_rad)
+
+x_tmp = R * cos(new_angl)
+z_tmp = R * sin(new_angl)
+
+cv = R*sqrt(2*(1 - cos(new_angl_rad)))
+print(cv)
+
+print(x_tmp, z_tmp)
