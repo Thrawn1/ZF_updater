@@ -60,6 +60,10 @@ def get_radius_arc(x_center:float, y_center:float, x_end:float, y_end:float) -> 
     radius = calculate_length_line((x_center, y_center), (x_end, y_end))
     return radius
 
+def convert_rad_to_grad(angle_rad:float):
+    angle_grad = (180*angle_rad)/pi
+    return angle_grad
+
 def arc_end_safety_angle(text:list, length_arc_safety:float) -> float:
     
     data_information = {}
@@ -74,7 +78,10 @@ def arc_end_safety_angle(text:list, length_arc_safety:float) -> float:
     arc_full_angl = calculate_angle_between_line(border_line_start_arc, border_line_end_arc)
     r = get_radius_arc(data_information['X_centr_arc'], data_information['Z_centr_arc'], data_information['X1_end'], data_information['Z1_end'])
     data_information['radius_arc'] = r
-    length_full_arc = 2 * pi * r / 360 * arc_full_angl
+    arc_full_angl_grad = convert_rad_to_grad(arc_full_angl)
+    print(arc_full_angl)
+    length_full_arc = 2 * pi * r / 360 * arc_full_angl_grad
+    print('Угол дуги: ',arc_full_angl_grad)
     data_information['length_full_arc'] = length_full_arc
     data_information['length_arc_safety'] = length_arc_safety
     safety_angle_arc_deg = length_arc_safety*360/(2 * pi * r)
